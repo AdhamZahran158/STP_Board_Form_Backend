@@ -66,9 +66,27 @@ const parseBoolean = (val) => {
   return false;
 };
 
-// Health Check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+// Test & Health Check Endpoints (Tests Server & Neon PostgreSQL Database Connection)
+app.get(['/', '/api/health', '/api/test'], async (req, res) => {
+  try {
+    const applicantCount = await prisma.applicant.count();
+    res.json({
+      success: true,
+      message: 'STP Board Applications Backend API is active and running!',
+      database: 'Connected to Neon PostgreSQL',
+      totalApplicationsInDatabase: applicantCount,
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development'
+    });
+  } catch (error) {
+    console.error('Database connection test error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Backend API is running, but database connection failed',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 // Submit Application Endpoint
