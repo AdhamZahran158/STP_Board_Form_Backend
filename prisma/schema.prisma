@@ -1,0 +1,71 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Applicant {
+  id                                   Int          @id @default(autoincrement())
+  name                                 String
+  email                                String
+  phone                                String
+  gender                               Gender
+  university                           String
+  faculty                              String
+  academic_year                        AcademicYear
+  linkedIn_link                        String
+  been_a_part_of_STP_before            Boolean
+  previous_committee_Team              String?
+  previous_position_role               String?
+  committee                            Committee
+  involved_in_other_student_activities Boolean
+  previous_experience                  Boolean
+  brief_about_experience               String?
+  led_a_team_before                    Boolean
+  leadership_experience                String?
+  why_interested                       String
+  strongest_skills                     String
+  vision                               String
+  handling_members_not_working         String
+  handling_members_leaving             String
+  handling_dissagreement_with_VP       String
+  latest_achievement                   String
+  value                                String
+  questions                            String? 
+  createdAt                            DateTime     @default(now())
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum AcademicYear {
+  FIRST_YEAR
+  SECOND_YEAR
+  THIRD_YEAR
+  FOURTH_YEAR
+  FIFTH_YEAR
+  GRADUATE
+}
+
+enum Committee {
+  SUPPLY_CHAIN
+  DCR
+  PR
+  BD
+  PEOPLE_AND_CULTURE
+  QC
+  TECHNICAL
+  MOBILE
+  FRONTEND_WEB
+  BACKEND
+  MARKETING
+  PHOTOGRAPHY
+  EDITING
+}
