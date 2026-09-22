@@ -4,58 +4,49 @@ const cors = require('cors');
 const { PrismaClient } = require('@prisma/client');
 
 const app = express();
-const prisma = new PrismaClient();
 const PORT = process.env.PORT || 5000;
+
+// Lazy Prisma instantiation — prevents crash on serverless cold start
+let prisma;
+function getPrisma() {
+  if (!prisma) {
+    prisma = new PrismaClient();
+  }
+  return prisma;
+}
 
 app.use(cors());
 app.use(express.json());
 
-// Helper maps for Enum values
+// ──────────────────────────────────────────────
+// Helper Maps for Enum Values
+// ──────────────────────────────────────────────
 const GENDER_MAP = {
-  'Male': 'MALE',
-  'Female': 'FEMALE',
-  'MALE': 'MALE',
-  'FEMALE': 'FEMALE'
+  'Male': 'MALE', 'Female': 'FEMALE',
+  'MALE': 'MALE', 'FEMALE': 'FEMALE'
 };
 
 const ACADEMIC_YEAR_MAP = {
-  '1st Year': 'FIRST_YEAR',
-  '2nd Year': 'SECOND_YEAR',
-  '3rd Year': 'THIRD_YEAR',
-  '4th Year': 'FOURTH_YEAR',
-  '5th Year': 'FIFTH_YEAR',
-  'Graduate': 'GRADUATE',
-  'FIRST_YEAR': 'FIRST_YEAR',
-  'SECOND_YEAR': 'SECOND_YEAR',
-  'THIRD_YEAR': 'THIRD_YEAR',
-  'FOURTH_YEAR': 'FOURTH_YEAR',
-  'FIFTH_YEAR': 'FIFTH_YEAR',
-  'GRADUATE': 'GRADUATE'
+  '1st Year': 'FIRST_YEAR', '2nd Year': 'SECOND_YEAR',
+  '3rd Year': 'THIRD_YEAR', '4th Year': 'FOURTH_YEAR',
+  '5th Year': 'FIFTH_YEAR', 'Graduate': 'GRADUATE',
+  'FIRST_YEAR': 'FIRST_YEAR', 'SECOND_YEAR': 'SECOND_YEAR',
+  'THIRD_YEAR': 'THIRD_YEAR', 'FOURTH_YEAR': 'FOURTH_YEAR',
+  'FIFTH_YEAR': 'FIFTH_YEAR', 'GRADUATE': 'GRADUATE'
 };
 
 const COMMITTEE_MAP = {
-  'Supply Chain': 'SUPPLY_CHAIN',
-  'DCR': 'DCR',
-  'PR': 'PR',
-  'BD': 'BD',
-  'People & Culture (HR)': 'PEOPLE_AND_CULTURE',
-  'People & Culture': 'PEOPLE_AND_CULTURE',
-  'QC': 'QC',
-  'Technical': 'TECHNICAL',
+  'Supply Chain': 'SUPPLY_CHAIN', 'DCR': 'DCR', 'PR': 'PR', 'BD': 'BD',
+  'People & Culture (HR)': 'PEOPLE_AND_CULTURE', 'People & Culture': 'PEOPLE_AND_CULTURE',
+  'QC': 'QC', 'Technical': 'TECHNICAL',
   'Frontend for Mobile Applications': 'MOBILE',
   'Frontend for Websites': 'FRONTEND_WEB',
-  'Backend': 'BACKEND',
-  'Marketing': 'MARKETING',
-  'Photography': 'PHOTOGRAPHY',
-  'Editing': 'EDITING',
-  'SUPPLY_CHAIN': 'SUPPLY_CHAIN',
-  'PEOPLE_AND_CULTURE': 'PEOPLE_AND_CULTURE',
-  'MOBILE': 'MOBILE',
-  'FRONTEND_WEB': 'FRONTEND_WEB',
-  'BACKEND': 'BACKEND',
-  'MARKETING': 'MARKETING',
-  'PHOTOGRAPHY': 'PHOTOGRAPHY',
-  'EDITING': 'EDITING'
+  'Backend': 'BACKEND', 'Marketing': 'MARKETING',
+  'Photography': 'PHOTOGRAPHY', 'Editing': 'EDITING',
+  'SUPPLY_CHAIN': 'SUPPLY_CHAIN', 'PEOPLE_AND_CULTURE': 'PEOPLE_AND_CULTURE',
+  'MOBILE': 'MOBILE', 'FRONTEND_WEB': 'FRONTEND_WEB',
+  'BACKEND': 'BACKEND', 'MARKETING': 'MARKETING',
+  'PHOTOGRAPHY': 'PHOTOGRAPHY', 'EDITING': 'EDITING'
 };
 
 const parseBoolean = (val) => {
@@ -66,10 +57,13 @@ const parseBoolean = (val) => {
   return false;
 };
 
-// Test & Health Check Endpoints (Tests Server & Neon PostgreSQL Database Connection)
+// ──────────────────────────────────────────────
+// Test / Health Endpoint
+// ──────────────────────────────────────────────
 app.get(['/', '/api/health', '/api/test'], async (req, res) => {
   try {
-    const applicantCount = await prisma.applicant.count();
+    const db = getPrisma();
+    const applicantCount = await db.applicant.count();
     res.json({
       success: true,
       message: 'STP Board Applications Backend API is active and running!',
@@ -89,12 +83,15 @@ app.get(['/', '/api/health', '/api/test'], async (req, res) => {
   }
 });
 
-// Submit Application Endpoint
+// ──────────────────────────────────────────────
+// POST /api/applications — Submit Application
+// ──────────────────────────────────────────────
 app.post('/api/applications', async (req, res) => {
   try {
+    const db = getPrisma();
     const body = req.body;
 
-    // Handle nested payload structure or flat structure
+    // Handle nested payload structure from the frontend or flat structure
     const payload = body.applicantDetails ? {
       name: body.applicantDetails.fullName,
       email: body.applicantDetails.email,
@@ -128,7 +125,7 @@ app.post('/api/applications', async (req, res) => {
     const academicYearVal = ACADEMIC_YEAR_MAP[payload.academic_year || payload.academicYear] || 'FIRST_YEAR';
     const committeeVal = COMMITTEE_MAP[payload.committee || payload.appliedCommittee] || 'BACKEND';
 
-    const newApplicant = await prisma.applicant.create({
+    const newApplicant = await db.applicant.create({
       data: {
         name: payload.name || payload.fullName || '',
         email: payload.email || '',
@@ -174,10 +171,13 @@ app.post('/api/applications', async (req, res) => {
   }
 });
 
-// Fetch All Applications
+// ──────────────────────────────────────────────
+// GET /api/applications — Fetch All Applications
+// ──────────────────────────────────────────────
 app.get('/api/applications', async (req, res) => {
   try {
-    const applications = await prisma.applicant.findMany({
+    const db = getPrisma();
+    const applications = await db.applicant.findMany({
       orderBy: { createdAt: 'desc' },
     });
     res.json({ success: true, count: applications.length, data: applications });
@@ -187,10 +187,14 @@ app.get('/api/applications', async (req, res) => {
   }
 });
 
+// ──────────────────────────────────────────────
+// Start server when run directly (local dev)
+// ──────────────────────────────────────────────
 if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`STP Backend Server running on port ${PORT}`);
   });
 }
 
+// Export for Vercel serverless
 module.exports = app;
