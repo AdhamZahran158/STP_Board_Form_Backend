@@ -15,7 +15,15 @@ function getPrisma() {
   return prisma;
 }
 
-app.use(cors());
+// Replace app.use(cors()); with:
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Handle OPTIONS explicitly
+app.options('*', cors());
 app.use(express.json());
 
 // ──────────────────────────────────────────────
