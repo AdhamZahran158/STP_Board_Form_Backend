@@ -60,18 +60,29 @@ const ACADEMIC_YEAR_MAP = {
 };
 
 const COMMITTEE_MAP = {
+  // Current frontend values
   'Supply Chain': 'SUPPLY_CHAIN',
   'DCR': 'DCR',
-  'PR': 'PR',
-  'BD': 'BD',
+  'Public Relations (PR)': 'PUBLIC_RELATIONS',
+
+  'Business Development (BD) [External Relations]':
+    'BUSINESS_DEVELOPMENT_EXTERNAL',
+
+  'Academic Relations (AR)': 'ACADEMIC_RELATIONS',
+
+  'Engineering': 'ENGINEERING',
+
+  'Film Making': 'FILM_MAKING',
+
+  'Business Development (BD) [AC]':
+    'BUSINESS_DEVELOPMENT_AC',
+
+  'Pioneers': 'PIONEERS',
+
   'People & Culture (HR)': 'PEOPLE_AND_CULTURE',
-  'People & Culture': 'PEOPLE_AND_CULTURE',
   'QC': 'QC',
   'Technical': 'TECHNICAL',
-
   'Mobile Application': 'MOBILE',
-  'Mobile application': 'MOBILE',
-
   'Frontend (Web)': 'FRONTEND_WEB',
   'Backend': 'BACKEND',
   'Marketing': 'MARKETING',
@@ -82,8 +93,13 @@ const COMMITTEE_MAP = {
   // Already-normalized values
   SUPPLY_CHAIN: 'SUPPLY_CHAIN',
   DCR: 'DCR',
-  PR: 'PR',
-  BD: 'BD',
+  PUBLIC_RELATIONS: 'PUBLIC_RELATIONS',
+  BUSINESS_DEVELOPMENT_EXTERNAL: 'BUSINESS_DEVELOPMENT_EXTERNAL',
+  ACADEMIC_RELATIONS: 'ACADEMIC_RELATIONS',
+  ENGINEERING: 'ENGINEERING',
+  FILM_MAKING: 'FILM_MAKING',
+  BUSINESS_DEVELOPMENT_AC: 'BUSINESS_DEVELOPMENT_AC',
+  PIONEERS: 'PIONEERS',
   PEOPLE_AND_CULTURE: 'PEOPLE_AND_CULTURE',
   QC: 'QC',
   TECHNICAL: 'TECHNICAL',
